@@ -5,7 +5,7 @@ import crypto from "node:crypto";
 import { db } from "../../db";
 import { refreshSessions } from "../../db/schema/refresh-session";
 import { roles } from "../../db/schema/rbac";
-import { users } from "../../db/schema/user";
+import { user } from "../../db/schema/user";
 import { generateAccessToken } from "../../utils/jwt";
 import {
   createRefreshTokenArtifacts,
@@ -24,7 +24,7 @@ interface SessionUser {
   name: string;
   email: string;
   role: {
-    role: string;
+    key: string;
     display_name: string;
   };
 }
@@ -32,29 +32,29 @@ interface SessionUser {
 export async function getUserProfileById(userId: string): Promise<SessionUser> {
   const rows = await db
     .select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      roleKey: roles.role,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      roleKey: roles.key,
       roleDisplayName: roles.displayName,
     })
-    .from(users)
-    .innerJoin(roles, eq(users.role, roles.role))
-    .where(eq(users.id, userId))
+    .from(user)
+    .innerJoin(roles, eq(user.roleKey, roles.key))
+    .where(eq(user.id, userId))
     .limit(1);
 
-  const user = rows[0];
-  if (!user) {
+  const userData = rows[0];
+  if (!userData) {
     throw new AppError("User not found", 404);
   }
 
   return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
+    id: userData.id,
+    name: userData.name,
+    email: userData.email,
     role: {
-      role: user.roleKey,
-      display_name: user.roleDisplayName,
+      key: userData.roleKey,
+      display_name: userData.roleDisplayName,
     },
   };
 }
@@ -80,9 +80,9 @@ async function createSessionForUser(userId: string) {
 
 export async function register(input: RegisterInput) {
   const existing = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.email, input.email))
+    .select({ id: user.id })
+    .from(user)
+    .where(eq(user.email, input.email))
     .limit(1);
 
   if (existing.length > 0) {
@@ -92,10 +92,10 @@ export async function register(input: RegisterInput) {
   const hashedPassword = await bcrypt.hash(input.password, SALT_ROUNDS);
   const userId = crypto.randomUUID();
 
-  await db.insert(users).values({
+  await db.insert(user).values({
     id: userId,
     name: input.name,
-    role: input.role,
+    roleKey: input.role,
     email: input.email,
     password: hashedPassword,
   });
@@ -106,26 +106,26 @@ export async function register(input: RegisterInput) {
 export async function login(input: LoginInput) {
   const rows = await db
     .select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      password: users.password,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      password: user.password,
     })
-    .from(users)
-    .where(eq(users.email, input.email))
+    .from(user)
+    .where(eq(user.email, input.email))
     .limit(1);
 
-  const user = rows[0];
-  if (!user) {
+  const userData = rows[0];
+  if (!userData) {
     throw new AppError("Invalid email or password", 401);
   }
 
-  const passwordOk = await bcrypt.compare(input.password, user.password);
+  const passwordOk = await bcrypt.compare(input.password, userData.password);
   if (!passwordOk) {
     throw new AppError("Invalid email or password", 401);
   }
 
-  return createSessionForUser(user.id);
+  return createSessionForUser(userData.id);
 }
 
 /**

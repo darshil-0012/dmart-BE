@@ -28,13 +28,13 @@ const ROLE_PERMISSION_MAP = {
 export async function seedRolePermissions(): Promise<void> {
   const existing = await db
     .select({
-      role: rolePermissions.role,
-      permission: rolePermissions.permission,
+      roleKey: rolePermissions.roleKey,
+      permissionKey: rolePermissions.permissionKey,
     })
     .from(rolePermissions);
 
   const existingPairs = new Set(
-    existing.map((item) => `${item.role}::${item.permission}`),
+    existing.map((item) => `${item.roleKey}::${item.permissionKey}`),
   );
 
   const missingMappings = Object.entries(ROLE_PERMISSION_MAP).flatMap(
@@ -42,8 +42,8 @@ export async function seedRolePermissions(): Promise<void> {
       permissions
         .filter((permission) => !existingPairs.has(`${role}::${permission}`))
         .map((permission) => ({
-          role,
-          permission,
+          roleKey: role,
+          permissionKey: permission,
         })),
   );
 

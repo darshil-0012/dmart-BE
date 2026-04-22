@@ -4,32 +4,32 @@ import { db } from "../index";
 import { permission } from "../schema/rbac";
 
 const PERMISSION_DEFINITIONS = [
-  { permission: "manage_admins", displayName: "Manage Admins" },
-  { permission: "read_store_inventory", displayName: "Read Store Inventory" },
-  { permission: "read_shelf_inventory", displayName: "Read Shelf Inventory" },
-  { permission: "update_store_inventory", displayName: "Update Store Inventory" },
-  { permission: "update_shelf_inventory", displayName: "Update Shelf Inventory" },
-  { permission: "approve_stock_request", displayName: "Approve Stock Request" },
-  { permission: "fulfill_stock_request", displayName: "Fulfill Stock Request" },
-  { permission: "move_stock_store_to_shelf", displayName: "Move Stock Store To Shelf" },
-  { permission: "create_stock_request", displayName: "Create Stock Request" },
-  { permission: "reduce_shelf_stock", displayName: "Reduce Shelf Stock" },
+  { key: "manage_admins", displayName: "Manage Admins" },
+  { key: "read_store_inventory", displayName: "Read Store Inventory" },
+  { key: "read_shelf_inventory", displayName: "Read Shelf Inventory" },
+  { key: "update_store_inventory", displayName: "Update Store Inventory" },
+  { key: "update_shelf_inventory", displayName: "Update Shelf Inventory" },
+  { key: "approve_stock_request", displayName: "Approve Stock Request" },
+  { key: "fulfill_stock_request", displayName: "Fulfill Stock Request" },
+  { key: "move_stock_store_to_shelf", displayName: "Move Stock Store To Shelf" },
+  { key: "create_stock_request", displayName: "Create Stock Request" },
+  { key: "reduce_shelf_stock", displayName: "Reduce Shelf Stock" },
 ] as const;
 
 export async function seedPermission(): Promise<void> {
   const existing = await db
-    .select({ name: permission.permission })
+    .select({ key: permission.key })
     .from(permission)
     .where(
       inArray(
-        permission.permission,
-        PERMISSION_DEFINITIONS.map((permission) => permission.permission),
+        permission.key,
+        PERMISSION_DEFINITIONS.map((permission) => permission.key),
       ),
     );
 
-  const existingNames = new Set(existing.map((item) => item.name));
+  const existingKeys = new Set(existing.map((item) => item.key));
   const missingPermissions = PERMISSION_DEFINITIONS.filter(
-    (permission) => !existingNames.has(permission.permission),
+    (permission) => !existingKeys.has(permission.key),
   );
 
   if (missingPermissions.length === 0) {

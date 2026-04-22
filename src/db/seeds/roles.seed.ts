@@ -4,21 +4,21 @@ import { db } from "../index";
 import { roles } from "../schema/rbac";
 
 const ROLE_DEFINITIONS = [
-  { role: "super_admin", displayName: "Super Admin" },
-  { role: "store_head", displayName: "Store Head" },
-  { role: "supply_chain_head", displayName: "Supply Chain Head" },
-  { role: "refiller", displayName: "Refiller" },
-  { role: "billing_person", displayName: "Billing Person" },
+  { key: "super_admin", displayName: "Super Admin" },
+  { key: "store_head", displayName: "Store Head" },
+  { key: "supply_chain_head", displayName: "Supply Chain Head" },
+  { key: "refiller", displayName: "Refiller" },
+  { key: "billing_person", displayName: "Billing Person" },
 ] as const;
 
 export async function seedRoles(): Promise<void> {
   const existing = await db
-    .select({ role: roles.role })
+    .select({ key: roles.key })
     .from(roles)
-    .where(inArray(roles.role, ROLE_DEFINITIONS.map((role) => role.role)));
+    .where(inArray(roles.key, ROLE_DEFINITIONS.map((role) => role.key)));
 
-  const existingRoles = new Set(existing.map((item) => item.role));
-  const missingRoles = ROLE_DEFINITIONS.filter((role) => !existingRoles.has(role.role));
+  const existingRoles = new Set(existing.map((item) => item.key));
+  const missingRoles = ROLE_DEFINITIONS.filter((role) => !existingRoles.has(role.key));
 
   if (missingRoles.length === 0) {
     console.log("Roles seed: all roles already exist.");

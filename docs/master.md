@@ -31,7 +31,10 @@
   - `POST /auth/register` -> `validate(registerSchema)` -> `authController.register`
   - `POST /auth/login` -> `validate(loginSchema)` -> `authController.login`
   - `POST /auth/refresh` -> `authController.refresh`
+  - `POST /auth/logout` -> `authController.logout`
   - `GET /auth/me` -> `authenticate` -> `authController.me`
+- `/ui` mounted from `src/app/routes/ui.routes.ts`
+  - `GET /ui/get-role-list` -> `uiController.getRoleList`
 
 ## 3) Layered Logic Details
 
@@ -70,6 +73,10 @@ Main functions:
   - Loads linked user.
   - Rotates refresh session hash + expiry.
   - Returns new access token + refresh token.
+- `logoutWithRefreshToken(refreshToken)`
+  - Hashes incoming refresh token.
+  - Deletes matching refresh session.
+  - Controller clears auth cookies.
 
 ## 4) Authentication and Token Logic
 
@@ -119,6 +126,7 @@ Main functions:
   - `name`: required non-empty string
   - `email`: valid email
   - `password`: min length 8
+  - `role`: non-empty value constrained to `ASSIGNABLE_ROLES`
 - `loginSchema`
   - picks `email` and `password` from register schema
 
@@ -187,7 +195,7 @@ Columns:
 - `name` `varchar(255)` NOT NULL
 - `email` `varchar(255)` NOT NULL UNIQUE
 - `password` `varchar(255)` NOT NULL
-- `role` `varchar(255)` NOT NULL (FK -> `roles.role`)
+- `role_key` `varchar(255)` NOT NULL (FK -> `roles.key`)
 - `created_at` `timestamp` NOT NULL DEFAULT now
 - `updated_at` `timestamp` NOT NULL DEFAULT now ON UPDATE now
 
@@ -220,7 +228,7 @@ Purpose:
 
 Columns:
 
-- `role` `varchar(255)` PRIMARY KEY
+- `key` `varchar(255)` PRIMARY KEY
 - `display_name` `varchar(255)` NOT NULL
 
 Purpose:
@@ -231,7 +239,7 @@ Purpose:
 
 Columns:
 
-- `permission` `varchar(255)` PRIMARY KEY
+- `key` `varchar(255)` PRIMARY KEY
 - `display_name` `varchar(255)` NOT NULL
 
 Purpose:
@@ -242,14 +250,14 @@ Purpose:
 
 Columns:
 
-- `role` `varchar(255)` NOT NULL
-- `permission` `varchar(255)` NOT NULL
+- `role_key` `varchar(255)` NOT NULL
+- `permission_key` `varchar(255)` NOT NULL
 
 Constraints:
 
-- FK: `role` -> `roles.role` (`ON DELETE CASCADE`)
-- FK: `permission` -> `permissions.permission` (`ON DELETE CASCADE`)
-- Composite primary key: (`role`, `permission`)
+- FK: `role_key` -> `roles.key` (`ON DELETE CASCADE`)
+- FK: `permission_key` -> `permissions.key` (`ON DELETE CASCADE`)
+- Composite primary key: (`role_key`, `permission_key`)
 
 Purpose:
 
@@ -258,7 +266,7 @@ Purpose:
 Composite key note:
 
 - No extra `pk` data column exists.
-- Primary key is a DB constraint/index over (`role`, `permission`).
+- Primary key is a DB constraint/index over (`role_key`, `permission_key`).
 - Duplicate pairs are rejected by MySQL automatically.
 
 ## 10) Relationship Summary
@@ -373,7 +381,7 @@ Billing:
 
 #### Store Management
 
-- `update_store_inventory_after_delivery`
+- `update_store_inventory`
 
 #### Admin
 
@@ -389,8 +397,9 @@ Billing:
 
 - `read_store_inventory`
 - `read_shelf_inventory`
+- `update_store_inventory`
+- `update_shelf_inventory`
 - `approve_stock_request`
-- `update_store_inventory_after_delivery`
 
 #### Supply Chain Head
 

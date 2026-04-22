@@ -1,6 +1,6 @@
 import { mysqlTable, varchar, timestamp, index } from "drizzle-orm/mysql-core";
 
-import { users } from "./user";
+import { user } from "./user";
 
 export const refreshSessions = mysqlTable(
   "refresh_sessions",
@@ -8,7 +8,7 @@ export const refreshSessions = mysqlTable(
     id: varchar("id", { length: 36 }).primaryKey(),
     userId: varchar("user_id", { length: 255 })
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
     tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
     expiresAt: timestamp("expires_at").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

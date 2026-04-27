@@ -29,7 +29,7 @@ interface SessionUser {
   };
 }
 
-export async function getUserProfileById(userId: string): Promise<SessionUser> {
+export async function getUserProfileById(userId: string) {
   const rows = await db
     .select({
       id: user.id,
@@ -173,8 +173,6 @@ export async function refreshWithToken(refreshToken: string) {
     user: dbUser,
   };
 }
-
-
 
 export async function logoutWithRefreshToken(refreshToken:string){
   const tokenHash = hashRefreshToken(refreshToken);

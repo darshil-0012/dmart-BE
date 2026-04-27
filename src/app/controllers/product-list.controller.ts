@@ -3,9 +3,9 @@ import { Request, Response } from "express";
 import * as productListService from "../services/product-list.service";
 import { AppError } from "../../utils/appError";
 
-export const getProductList = catchAsync(
+export const getProductListFromStoreRoomSection = catchAsync(
   async (_req: Request, res: Response): Promise<void> => {
-    const productList = await productListService.getProductList();
+    const productList = await productListService.getProductListFromStoreRoomSection();
     if (!productList) {
       throw AppError.notFound("productList");
     }

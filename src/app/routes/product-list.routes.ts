@@ -8,7 +8,7 @@ const router = Router();
 router.get(
   "/store-room",
   requirePermission([Permission.READ_STORE_INVENTORY]),
-  productListController.getProductList,
+  productListController.getProductListFromStoreRoomSection,
 );
 
 export default router;

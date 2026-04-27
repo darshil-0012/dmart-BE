@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "273b935e-6dfc-48db-90eb-2cc0ec2e0be6",
+  "id": "5cbae05e-4036-4c73-93e9-447a87089b66",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "refresh_sessions": {
@@ -316,7 +316,7 @@
         },
         "description": {
           "name": "description",
-          "type": "varchar(255)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -494,7 +494,14 @@
           ]
         }
       },
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "shelf_product_id_unique": {
+          "name": "shelf_product_id_unique",
+          "columns": [
+            "product_id"
+          ]
+        }
+      },
       "checkConstraint": {}
     },
     "store_room": {
@@ -502,6 +509,159 @@
       "columns": {
         "id": {
           "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "store_room_id": {
+          "name": "store_room_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "section": {
+      "name": "section",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "store_room_id": {
+          "name": "store_room_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "location": {
+          "name": "location",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "section_store_room_id_idx": {
+          "name": "section_store_room_id_idx",
+          "columns": [
+            "store_room_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "section_store_room_id_store_room_id_fk": {
+          "name": "section_store_room_id_store_room_id_fk",
+          "tableFrom": "section",
+          "tableTo": "store_room",
+          "columnsFrom": [
+            "store_room_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "section_id": {
+          "name": "section_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "section_product": {
+      "name": "section_product",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "section_id": {
+          "name": "section_id",
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
@@ -541,8 +701,15 @@
         }
       },
       "indexes": {
-        "store_room_product_id_idx": {
-          "name": "store_room_product_id_idx",
+        "section_product_section_id_idx": {
+          "name": "section_product_section_id_idx",
+          "columns": [
+            "section_id"
+          ],
+          "isUnique": false
+        },
+        "section_product_product_id_idx": {
+          "name": "section_product_product_id_idx",
           "columns": [
             "product_id"
           ],
@@ -550,9 +717,22 @@
         }
       },
       "foreignKeys": {
-        "store_room_product_id_product_id_fk": {
-          "name": "store_room_product_id_product_id_fk",
-          "tableFrom": "store_room",
+        "section_product_section_id_section_id_fk": {
+          "name": "section_product_section_id_section_id_fk",
+          "tableFrom": "section_product",
+          "tableTo": "section",
+          "columnsFrom": [
+            "section_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "section_product_product_id_product_id_fk": {
+          "name": "section_product_product_id_product_id_fk",
+          "tableFrom": "section_product",
           "tableTo": "product",
           "columnsFrom": [
             "product_id"
@@ -565,14 +745,21 @@
         }
       },
       "compositePrimaryKeys": {
-        "store_room_id": {
-          "name": "store_room_id",
+        "section_product_id": {
+          "name": "section_product_id",
           "columns": [
             "id"
           ]
         }
       },
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "section_product_product_id_unique": {
+          "name": "section_product_product_id_unique",
+          "columns": [
+            "product_id"
+          ]
+        }
+      },
       "checkConstraint": {}
     }
   },

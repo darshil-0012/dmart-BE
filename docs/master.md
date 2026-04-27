@@ -269,6 +269,67 @@ Composite key note:
 - Primary key is a DB constraint/index over (`role_key`, `permission_key`).
 - Duplicate pairs are rejected by MySQL automatically.
 
+### `store_room` (`src/db/schema/store-room.ts`)
+
+Columns:
+
+- `id` `varchar(36)` PRIMARY KEY
+- `name` `varchar(255)` NOT NULL
+- `description` `text` NULL
+- `created_at` `timestamp` NOT NULL DEFAULT now
+- `updated_at` `timestamp` NOT NULL DEFAULT now ON UPDATE now
+
+Purpose:
+
+- Represents store-room level container metadata.
+- Does not directly store product quantities.
+
+### `section` (`src/db/schema/section.ts`)
+
+Columns:
+
+- `id` `varchar(36)` PRIMARY KEY
+- `store_room_id` `varchar(36)` NOT NULL
+- `name` `varchar(255)` NOT NULL
+- `location` `varchar(255)` NOT NULL
+- `description` `text` NULL
+- `created_at` `timestamp` NOT NULL DEFAULT now
+- `updated_at` `timestamp` NOT NULL DEFAULT now ON UPDATE now
+
+Constraints/indexes:
+
+- FK: `store_room_id` -> `store_room.id` (`ON DELETE CASCADE`)
+- Index: `section_store_room_id_idx` on `store_room_id`
+
+Purpose:
+
+- Stores section-level physical location details inside a store room.
+- Enables exact location lookup for inventory.
+
+### `section_product` (`src/db/schema/section-product.ts`)
+
+Columns:
+
+- `id` `varchar(36)` PRIMARY KEY
+- `section_id` `varchar(36)` NOT NULL
+- `product_id` `varchar(36)` NOT NULL
+- `quantity` `int` NOT NULL DEFAULT `0`
+- `created_at` `timestamp` NOT NULL DEFAULT now
+- `updated_at` `timestamp` NOT NULL DEFAULT now ON UPDATE now
+
+Constraints/indexes:
+
+- FK: `section_id` -> `section.id` (`ON DELETE CASCADE`)
+- FK: `product_id` -> `product.id` (`ON DELETE CASCADE`)
+- Unique: `product_id` (one section per product)
+- Index: `section_product_section_id_idx` on `section_id`
+- Index: `section_product_product_id_idx` on `product_id`
+
+Purpose:
+
+- Maps products to sections with their quantity.
+- Serves as the source of truth for store-room inventory location and stock count.
+
 ## 10) Relationship Summary
 
 - One user can have many refresh sessions.
@@ -276,6 +337,9 @@ Composite key note:
 - One role can map to many permissions.
 - One permission can map to many roles.
 - `role_permissions` stores unique role-permission pairs using composite PK.
+- One store room can have many sections.
+- One section can have many product quantity entries.
+- One product maps to exactly one section via unique `section_product.product_id`.
 
 ## 11) Dmart Supply Chain System - Roles and Permissions Spec
 
@@ -295,20 +359,26 @@ It manages:
 
 #### 1. Store Room (Godown)
 
-- Holds bulk inventory
-- Example: 1000 shampoos
+- Parent container for inventory sections
+- Stores metadata only (not direct product quantity)
 
-#### 2. Shelf
+#### 2. Section (Inside Store Room)
+
+- Exact physical location inside a store room
+- Example: "Aisle-A / Rack-2 / Bin-4"
+- Holds per-product quantity via `section_product`
+
+#### 3. Shelf
 
 - Holds limited stock for sale
 - Example: 100 shampoos
 
-#### 3. Stock Flow
+#### 4. Stock Flow
 
 Refiller:
 
-- Moves stock from store room to shelf
-- Decreases store quantity
+- Moves stock from store room section to shelf
+- Decreases section quantity
 - Increases shelf quantity
 
 Billing:
@@ -318,12 +388,12 @@ Billing:
 ### System Flow
 
 1. Refiller checks shelf stock.
-2. Refiller moves stock from store room to shelf.
+2. Refiller moves stock from store room section to shelf.
 3. If store stock is low, refiller creates a stock request.
 4. Store Head approves the stock request.
 5. Store Head places order to Supply Chain.
 6. Supply Chain delivers stock.
-7. Store Head updates store room inventory after delivery.
+7. Store Head updates store room section inventory after delivery.
 
 ### Roles
 
@@ -364,7 +434,7 @@ Billing:
 
 #### Stock Movement
 
-- `move_stock_store_to_shelf` (decreases store and increases shelf; no direct edit allowed)
+- `move_stock_store_to_shelf` (decreases section stock and increases shelf stock; no direct edit allowed)
 
 #### Billing
 
@@ -420,7 +490,7 @@ Billing:
 
 ### Important Design Rules
 
-1. Refiller cannot directly update store quantity and must use `move_stock_store_to_shelf`.
+1. Refiller cannot directly update section quantity and must use `move_stock_store_to_shelf`.
 2. Store Head is the only role that updates store inventory after delivery.
 3. Billing affects shelf stock only, not store stock directly.
 4. Permission checks must be enforced in APIs instead of role-name checks.
@@ -432,7 +502,7 @@ Refiller -> move stock -> Shelf
 Refiller -> request stock -> Store Head
 Store Head -> order -> Supply Chain
 Supply Chain -> deliver -> Store Head
-Store Head -> update store room
+Store Head -> update section inventory
 Billing -> reduce shelf stock
 ```
 

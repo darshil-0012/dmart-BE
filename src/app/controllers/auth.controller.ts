@@ -66,11 +66,8 @@ export const refresh = catchAsync(async (req: Request, res: Response): Promise<v
 });
 
 export const me = catchAsync(async (req: Request, res: Response): Promise<void> => {
-  const userId = req.auth?.userId;
-  if (!userId) {
+  if (!req.user) {
     throw AppError.badRequest("Missing authenticated user");
   }
-
-  const user = await authService.getUserProfileById(userId as string);
-  res.status(200).json({ user });
+  res.status(200).json({ user: req.user });
 });

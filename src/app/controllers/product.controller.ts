@@ -3,9 +3,9 @@ import { Request, Response } from "express";
 import * as productListService from "../services/product.service";
 import { AppError } from "../../utils/appError";
 
-export const getProductListFromStoreRoom = catchAsync(
+export const getProductList = catchAsync(
   async (_req: Request, res: Response): Promise<void> => {
-    const productList = await productListService.getProductListFromStoreRoom();
+    const productList = await productListService.getProductList();
     if (!productList) {
       throw AppError.notFound("productList");
     }
@@ -13,10 +13,10 @@ export const getProductListFromStoreRoom = catchAsync(
   },
 );
 
-export const setProductRefiller = catchAsync(
+export const setProductRefillerByUserId = catchAsync(
   async (req: Request, res: Response): Promise<void> => {
     const { productIds, userId } = req.body;
-    const response = await productListService.setProductRefiller(
+    const response = await productListService.setProductRefillerByUserId(
       productIds,
       userId,
     );

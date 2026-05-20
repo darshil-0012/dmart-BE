@@ -8,16 +8,16 @@ import { setProductRefillerSchema } from "../../validations/product.validation";
 const router = Router();
 
 router.get(
-  "/store-room",
+  "/list",
   requirePermission([PERMISSIONS.READ_STORE_INVENTORY]),
-  product.getProductListFromStoreRoom,
+  product.getProductList,
 );
 
 router.post(
   "/set-product-refiller",
   requirePermission([PERMISSIONS.UPDATE_STORE_INVENTORY]),
   validate({ body: setProductRefillerSchema }),
-  product.setProductRefiller,
+  product.setProductRefillerByUserId,
 );
 
 export default router;

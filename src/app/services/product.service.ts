@@ -10,7 +10,7 @@ import {
 import { AppError } from "../../utils/appError";
 import { ROLES } from "../../types/role";
 
-export async function getProductListFromStoreRoom() {
+export async function getProductList() {
   return db
     .select({
       product: {
@@ -35,7 +35,7 @@ export async function getProductListFromStoreRoom() {
     .leftJoin(user, eq(user.id, productRefiller.userId));
 }
 
-export async function setProductRefiller(productIds: string[], userId: string) {
+export async function setProductRefillerByUserId(productIds: string[], userId: string) {
   const userExists = await db
     .select({ id: user.id, roleKey: user.roleKey })
     .from(user)

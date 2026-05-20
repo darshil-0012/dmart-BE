@@ -1,10 +1,10 @@
 import type { AppUser } from "../../types/user";
-import { Role } from "../../types/role";
+import { ROLES } from "../../types/role";
 import type { AuthRequirements, AuthResult } from "../../types/rbac";
 
 export class RBACService {
   static authorize(user: AppUser, requirements: AuthRequirements): AuthResult {
-    if (user.role.key === Role.SUPER_ADMIN) {
+    if (user.role.key === ROLES.SUPER_ADMIN) {
       return {
         allowed: true,
         reason: "super-admin",

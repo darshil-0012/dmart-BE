@@ -1,24 +1,24 @@
 import { db } from "../index";
 import { rolePermissions } from "../schema/rbac";
-import { Role } from "../../types/role";
+import { ROLES } from "../../types/role";
 
 const ROLE_PERMISSION_MAP = {
-  [Role.SUPER_ADMIN]: ["manage_admins"],
-  [Role.STORE_HEAD]: [
+  [ROLES.SUPER_ADMIN]: ["manage_admins"],
+  [ROLES.STORE_HEAD]: [
     "read_store_inventory",
     "read_shelf_inventory",
     "update_store_inventory",
     "update_shelf_inventory",
     "approve_stock_request",
   ],
-  [Role.SUPPLY_CHAIN_HEAD]: ["fulfill_stock_request"],
-  [Role.REFILLER]: [
+  [ROLES.SUPPLY_CHAIN_HEAD]: ["fulfill_stock_request"],
+  [ROLES.REFILLER]: [
     "read_store_inventory",
     "read_shelf_inventory",
     "move_stock_store_to_shelf",
     "create_stock_request",
   ],
-  [Role.BILLING_PERSON]: [
+  [ROLES.BILLING_PERSON]: [
     "read_store_inventory",
     "read_shelf_inventory",
     "reduce_shelf_stock",

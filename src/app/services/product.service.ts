@@ -8,7 +8,7 @@ import {
   user,
 } from "../../db/schema";
 import { AppError } from "../../utils/appError";
-import { Role } from "../../types/role";
+import { ROLES } from "../../types/role";
 
 export async function getProductListFromStoreRoom() {
   return db
@@ -46,7 +46,7 @@ export async function setProductRefiller(productIds: string[], userId: string) {
     throw AppError.notFound("User");
   }
 
-  if (userExists[0].roleKey !== Role.REFILLER) {
+  if (userExists[0].roleKey !== ROLES.REFILLER) {
     throw AppError.badRequest("User is not a refiller");
   }
 

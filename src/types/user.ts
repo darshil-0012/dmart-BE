@@ -1,5 +1,5 @@
-import { Permission } from "./permission";
-import { Role } from "./role";
+import type { Permission } from "./permission";
+import type { Role } from "./role";
 
 export interface AppUser {
   name: string;

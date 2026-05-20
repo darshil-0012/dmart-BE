@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 import { RBACService } from "../app/services/rbac.service";
 import type { AuthRequirements } from "../types/rbac";
 import type { Permission } from "../types/permission";
-import { Role } from "../types/role";
+import { ROLES, type Role } from "../types/role";
 
 export function createRBACMiddleware(requirements: AuthRequirements) {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -35,4 +35,4 @@ export const requirePermission = (permissions: Permission[]) =>
 export const requireRole = (roleKeys: Role[]) => createRBACMiddleware({ roleKeys });
 
 export const requireSuperAdmin = () =>
-  createRBACMiddleware({ roleKeys: [Role.SUPER_ADMIN] });
+  createRBACMiddleware({ roleKeys: [ROLES.SUPER_ADMIN] });

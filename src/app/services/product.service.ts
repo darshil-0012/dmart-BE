@@ -35,6 +35,39 @@ export async function getProductList() {
     .leftJoin(user, eq(user.id, productRefiller.userId));
 }
 
+export async function updateProductRefiller(productId: string, userIds: string[]) {
+  const foundUsers = await db
+    .select({ id: user.id, roleKey: user.roleKey })
+    .from(user)
+    .where(inArray(user.id, userIds));
+
+  if (foundUsers.length !== userIds.length) {
+    throw AppError.notFound("One or more users not found");
+  }
+
+  const nonRefillers = foundUsers.filter((u) => u.roleKey !== ROLES.REFILLER);
+  if (nonRefillers.length > 0) {
+    throw AppError.badRequest("One or more users are not refillers");
+  }
+
+  const productExists = await db
+    .select({ id: product.id })
+    .from(product)
+    .where(eq(product.id, productId))
+    .limit(1);
+
+  if (productExists.length === 0) {
+    throw AppError.notFound("Product");
+  }
+
+  return await db.transaction(async (tx) => {
+    await tx.delete(productRefiller).where(eq(productRefiller.productId, productId));
+    return tx
+      .insert(productRefiller)
+      .values(userIds.map((userId) => ({ productId, userId })));
+  });
+}
+
 export async function setProductRefillerByUserId(productIds: string[], userId: string) {
   const userExists = await db
     .select({ id: user.id, roleKey: user.roleKey })

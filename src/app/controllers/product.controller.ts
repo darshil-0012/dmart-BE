@@ -13,6 +13,20 @@ export const getProductList = catchAsync(
   },
 );
 
+export const updateProductRefiller = catchAsync(
+  async (req: Request, res: Response): Promise<void> => {
+    const { productId, userIds } = req.body;
+    const response = await productListService.updateProductRefiller(productId, userIds);
+    if (!response) {
+      throw new AppError("Failed to update product refiller", 500);
+    }
+    res.status(200).json({
+      message: "Product refiller updated successfully",
+      data: { productId, userIds },
+    });
+  },
+);
+
 export const setProductRefillerByUserId = catchAsync(
   async (req: Request, res: Response): Promise<void> => {
     const { productIds, userId } = req.body;

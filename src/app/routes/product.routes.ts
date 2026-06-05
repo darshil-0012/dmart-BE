@@ -3,7 +3,7 @@ import * as product from "../controllers/product.controller";
 import { requirePermission } from "../../middleware/rbac";
 import { PERMISSIONS } from "../../types/permission";
 import { validate } from "../../middleware/validate";
-import { setProductRefillerSchema } from "../../validations/product.validation";
+import { setProductRefillerSchema, updateProductRefillerSchema } from "../../validations/product.validation";
 
 const router = Router();
 
@@ -18,6 +18,13 @@ router.post(
   requirePermission([PERMISSIONS.UPDATE_STORE_INVENTORY]),
   validate({ body: setProductRefillerSchema }),
   product.setProductRefillerByUserId,
+);
+
+router.put(
+  "/update-product-refiller",
+  requirePermission([PERMISSIONS.UPDATE_STORE_INVENTORY]),
+  validate({ body: updateProductRefillerSchema }),
+  product.updateProductRefiller,
 );
 
 export default router;

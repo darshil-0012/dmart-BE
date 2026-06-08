@@ -5,6 +5,7 @@ import { seedRolePermissions } from "./role-permissions.seed";
 import { seedRoles } from "./roles.seed";
 import { seedSectionProduct } from "./section-product.seed";
 import { seedSection } from "./section.seed";
+import { seedShelf } from "./shelf.seed";
 import { seedStoreRoom } from "./store-room.seed";
 
 type Seeder = {
@@ -20,6 +21,7 @@ const seeders: Seeder[] = [
   { name: "store_room", run: seedStoreRoom },
   { name: "section", run: seedSection },
   { name: "section_product", run: seedSectionProduct },
+  { name: "shelf", run: seedShelf },
 ];
 
 async function runAllSeeders(): Promise<void> {

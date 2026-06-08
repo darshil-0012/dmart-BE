@@ -16,6 +16,7 @@ export const shelf = mysqlTable(
       .notNull()
       .unique()
       .references(() => product.id, { onDelete: "cascade" }),
+    location : varchar("location",{length:255}).notNull(),
     quantity: int("quantity").notNull().default(0),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),

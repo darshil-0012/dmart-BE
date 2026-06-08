@@ -1,0 +1,1 @@
+ALTER TABLE `shelf` ADD `location` varchar(255) NOT NULL;
